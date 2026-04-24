@@ -1,122 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState } from 'react';
+import Transcript from './components/Transcript';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [transcript, setTranscript] = useState([]);
+
+  // TODO: Change the function name and implementation to send the 30s audio chunk to Django backend.
+  const handleAudioChunk = async (audioBlob) => {
+    // Hardcoded API key for testing - replace with secure method in production
+    const tempApiKey = "";
+
+    if (!tempApiKey) {
+      alert("Please enter a Groq API key in the code to test.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("audio", audioBlob);
+    formData.append("apiKey", tempApiKey);
+
+    try {
+      // Send the chunk to our new Django endpoint
+      const response = await axios.post('http://localhost:8000/api/process-audio/', formData);
+
+      const newText = response.data.transcript;
+      if (newText) {
+        setTranscript((prev) => [...prev, newText]);
+      }
+    } catch (error) {
+      console.error("Error processing audio chunk:", error);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="container-fluid vh-100 p-0 overflow-hidden bg-light">
+      {/* Navbar / Header */}
+      <nav className="navbar navbar-dark bg-dark px-4 shadow-sm">
+        <span className="navbar-brand mb-0 h1 fw-bold">TwinMind Copilot</span>
+        {/* We'll add the Export button here later */}
+      </nav>
 
-      <div className="ticks"></div>
+      {/* Main 3-Column Layout */}
+      <div className="row g-0 h-100 pb-5">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        {/* Left Column: Mic & Transcript */}
+        <div className="col-4 h-100">
+          <Transcript
+            transcript={transcript}
+            onAudioChunk={handleAudioChunk}
+          />
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Middle Column: Live Suggestions (Placeholder) */}
+        <div className="col-4 h-100 bg-white border-end p-3 overflow-auto">
+          <h5 className="fw-bold border-bottom pb-3 mb-3">Live Suggestions</h5>
+          <div className="text-muted text-center mt-5">
+            <p>Suggestions will appear here.</p>
+          </div>
+        </div>
+
+        {/* Right Column: Chat (Placeholder) */}
+        <div className="col-4 h-100 bg-white p-3 overflow-auto">
+          <h5 className="fw-bold border-bottom pb-3 mb-3">Chat</h5>
+          <div className="text-muted text-center mt-5">
+            <p>Click a suggestion to see details.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
