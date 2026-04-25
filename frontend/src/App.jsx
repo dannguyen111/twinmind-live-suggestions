@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Transcript from './components/Transcript';
 import Suggestions from './components/Suggestions';
 import Chat from './components/Chat';
+import WelcomeScreen from './components/WelcomeScreen';
 import axios from 'axios';
 
 function App() {
+  const [apiKey, setApiKey] = useState(localStorage.getItem('groqApiKey') || '');
   const [transcript, setTranscript] = useState([]);
   const [suggestionBatches, setSuggestionBatches] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
@@ -12,16 +14,11 @@ function App() {
 
   const handleAudioChunk = async (audioBlob) => {
     // Hardcoded API key for testing - replace with secure method in production
-    const tempApiKey = import.meta.env.VITE_GROQ_API_KEY;
-
-    if (!tempApiKey) {
-      alert("Please enter a Groq API key in the code to test.");
-      return;
-    }
+    if (!apiKey) return;
 
     const formData = new FormData();
     formData.append("audio", audioBlob);
-    formData.append("apiKey", tempApiKey);
+    formData.append("apiKey", apiKey);
     formData.append("context", transcript.join('\n'));
 
     try {
@@ -53,9 +50,19 @@ function App() {
     // TODO: Force the audio hook to flush its chunk early
   };
 
+  const handleSaveKey = (key) => {
+    localStorage.setItem('groqApiKey', key);
+    setApiKey(key);
+  };
+
+  const handleClearKey = () => {
+    localStorage.removeItem('groqApiKey');
+    setApiKey('');
+    // Potentially reset app state to clear the screen on logout
+  };
+
   const handleChatRequest = async (query) => {
-    const tempApiKey = import.meta.env.VITE_GROQ_API_KEY;
-    if (!tempApiKey) return;
+    if (!apiKey) return;
 
     const newUserMessage = { role: 'user', content: query };
     setChatMessages(prev => [...prev, newUserMessage]);
@@ -66,7 +73,7 @@ function App() {
         query: query,
         transcript: transcript.join('\n'),
         history: chatMessages,
-        apiKey: tempApiKey
+        apiKey: apiKey
       });
 
       const aiResponse = { role: 'assistant', content: response.data.answer };
@@ -79,16 +86,21 @@ function App() {
     }
   };
 
+  if (!apiKey) {
+    return <WelcomeScreen onSaveKey={handleSaveKey} />;
+  }
+
   return (
-    <div className="container-fluid vh-100 p-0 overflow-hidden bg-light">
-      {/* Navbar / Header */}
-      <nav className="navbar navbar-dark bg-dark px-4 shadow-sm">
+    <div className="container-fluid vh-100 p-0 overflow-hidden bg-light d-flex flex-column">
+      <nav className="navbar navbar-dark bg-dark px-4 shadow-sm d-flex justify-content-between">
         <span className="navbar-brand mb-0 h1 fw-bold">TwinMind Copilot</span>
-        {/* We'll add the Export button here later */}
+        <button className="btn btn-sm btn-outline-light" onClick={handleClearKey}>
+          Clear API Key
+        </button>
       </nav>
 
       {/* Main 3-Column Layout */}
-      <div className="row g-0 h-100 pb-5">
+      <div className="row g-0 flex-grow-1">
 
         {/* Left Column: Mic & Transcript */}
         <div className="col-4 h-100">
