@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
 import os
-from .services.orchestrator import generate_live_suggestions
+from .services.orchestrator import generate_live_suggestions, generate_chat_response
 
 @api_view(['POST'])
 def process_audio(request):
@@ -47,3 +47,17 @@ def process_audio(request):
         print(f"Groq API Error Details: {error_details}")
         
         return Response({"error": "Failed to transcribe audio from Groq"}, status=500)
+    
+@api_view(['POST'])
+def chat_message(request):
+    query = request.data.get('query')
+    transcript = request.data.get('transcript', '')
+    history = request.data.get('history', [])
+    api_key = request.data.get('apiKey') or os.environ.get('GROQ_API_KEY')
+
+    if not query or not api_key:
+        return Response({"error": "Query and API key are required."}, status=400)
+
+    answer = generate_chat_response(api_key, transcript, history, query)
+    
+    return Response({"answer": answer})
