@@ -3,6 +3,7 @@ import Transcript from './components/Transcript';
 import Suggestions from './components/Suggestions';
 import Chat from './components/Chat';
 import WelcomeScreen from './components/WelcomeScreen';
+import useAudio from './hooks/useAudio';
 import axios from 'axios';
 
 function App() {
@@ -40,6 +41,8 @@ function App() {
       console.error("Error processing audio chunk:", error);
     }
   };
+
+  const { isRecording, startRecording, stopRecording, forceRefresh } = useAudio(handleAudioChunk);
 
   const handleSuggestionClick = (suggestion) => {
     handleChatRequest(`Tell me more about this suggestion: "${suggestion.preview}"`);
@@ -100,22 +103,24 @@ function App() {
       </nav>
 
       {/* Main 3-Column Layout */}
-      <div className="row g-0 flex-grow-1">
+      <div className="row g-0 flex-grow-1 overflow-hidden">
 
         {/* Left Column: Mic & Transcript */}
         <div className="col-4 h-100">
           <Transcript
             transcript={transcript}
-            onAudioChunk={handleAudioChunk}
+            isRecording={isRecording}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
           />
         </div>
 
         {/* Middle Column: Live Suggestions */}
-        <div className="col-4 h-100 p-0">
+        <div className="col-4 h-100 p-0 border-start">
           <Suggestions
             batches={suggestionBatches}
             onSuggestionClick={handleSuggestionClick}
-            onRefresh={handleManualRefresh}
+            onRefresh={forceRefresh}
           />
         </div>
 
