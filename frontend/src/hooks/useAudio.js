@@ -9,7 +9,6 @@ export default function useAudio(onChunkReady) {
     const startRecordingCycle = useCallback(() => {
         if (!streamRef.current) return;
 
-        // Create a fresh MediaRecorder instance for this specific chunk
         const mediaRecorder = new MediaRecorder(streamRef.current);
         mediaRecorderRef.current = mediaRecorder;
 
@@ -21,7 +20,6 @@ export default function useAudio(onChunkReady) {
 
         mediaRecorder.start();
 
-        // Exactly 30 seconds later, stop this recording and immediately start the next cycle
         cycleTimeoutRef.current = setTimeout(() => {
             if (mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
@@ -50,17 +48,23 @@ export default function useAudio(onChunkReady) {
         setIsRecording(false);
         clearTimeout(cycleTimeoutRef.current);
 
-        // Stop the current active recorder to capture the final partial chunk
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
             mediaRecorderRef.current.stop();
         }
 
-        // Kill the microphone tracks
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
         }
     }, []);
 
-    return { isRecording, startRecording, stopRecording };
+    const forceRefresh = useCallback(() => {
+        if (isRecording && mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            clearTimeout(cycleTimeoutRef.current);
+            mediaRecorderRef.current.stop();
+            startRecordingCycle();
+        }
+    }, [isRecording, startRecordingCycle]);
+
+    return { isRecording, startRecording, stopRecording, forceRefresh };
 }

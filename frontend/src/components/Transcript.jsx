@@ -1,48 +1,39 @@
-import React, { useRef, useEffect } from 'react';
-import useAudio from '../hooks/useAudio';
+import React, { useEffect, useRef } from 'react';
 
-export default function Transcript({ transcript, onAudioChunk }) {
-    const { isRecording, startRecording, stopRecording } = useAudio(onAudioChunk);
+export default function Transcript({ transcript, isRecording, startRecording, stopRecording }) {
+    const endOfTranscriptRef = useRef(null);
 
-    // Auto-scroll behavior
-    const transcriptEndRef = useRef(null);
     useEffect(() => {
-        transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        endOfTranscriptRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [transcript]);
 
     return (
-        <div className="d-flex flex-column h-100 bg-white border-end">
-            {/* Header with Mic Button */}
-            <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
-                <h5 className="mb-0 fw-bold">Transcript</h5>
+        <div className="d-flex flex-column h-100 bg-white">
+            <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                <h5 className="mb-0 fw-bold">Meeting Transcript</h5>
                 <button
-                    className={`btn ${isRecording ? 'btn-danger' : 'btn-primary'}`}
+                    className={`btn fw-bold ${isRecording ? 'btn-danger' : 'btn-primary'}`}
                     onClick={isRecording ? stopRecording : startRecording}
                 >
                     {isRecording ? '⏹ Stop Mic' : '⏺ Start Mic'}
                 </button>
             </div>
 
-            {/* Scrollable Transcript Area */}
             <div className="flex-grow-1 p-3 overflow-auto">
                 {transcript.length === 0 ? (
                     <div className="text-muted text-center mt-5">
-                        <p>Ready to record.</p>
-                        <small>Click 'Start Mic' to begin. The transcript will append in ~30-second chunks.</small>
+                        <p>Your transcribed text will appear here.</p>
+                        <small>Click "Start Mic" to begin.</small>
                     </div>
                 ) : (
-                    transcript.map((line, index) => (
+                    transcript.map((text, index) => (
                         <div key={index} className="mb-3">
-                            <span className="badge bg-light text-dark border mb-1">
-                                {/* Optional: Add a simple timestamp or chunk label here if desired */}
-                                Chunk {index + 1}
-                            </span>
-                            <p className="mb-0 text-dark lh-base">{line}</p>
+                            <span className="badge bg-secondary mb-1">Chunk {index + 1}</span>
+                            <p className="mb-0 lh-lg">{text}</p>
                         </div>
                     ))
                 )}
-                {/* Empty div acting as the anchor for auto-scrolling */}
-                <div ref={transcriptEndRef} />
+                <div ref={endOfTranscriptRef} />
             </div>
         </div>
     );
