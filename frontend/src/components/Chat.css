@@ -1,0 +1,45 @@
+/* Fixes margins inside the AI's chat bubble so the text sits flush */
+.markdown-container>*:first-child {
+    margin-top: 0;
+}
+
+.markdown-container>*:last-child {
+    margin-bottom: 0;
+}
+
+/* Styles the tables to look like Bootstrap tables */
+.markdown-container table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+}
+
+.markdown-container th,
+.markdown-container td {
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.markdown-container th {
+    background-color: #f8f9fa;
+}
+
+/* Styles code blocks so they have a nice background and scroll horizontally if too long */
+.markdown-container pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+    overflow-x: auto;
+}
+
+.markdown-container code {
+    color: #d63384;
+    word-wrap: break-word;
+}
+
+.markdown-container pre code {
+    color: #212529;
+    word-wrap: normal;
+}

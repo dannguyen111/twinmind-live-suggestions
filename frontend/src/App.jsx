@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import Transcript from './components/Transcript';
 import Suggestions from './components/Suggestions';
+import Chat from './components/Chat';
 import axios from 'axios';
 
 function App() {
   const [transcript, setTranscript] = useState([]);
   const [suggestionBatches, setSuggestionBatches] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // TODO: Change the function name and implementation to send the 30s audio chunk to Django backend.
   const handleAudioChunk = async (audioBlob) => {
     // Hardcoded API key for testing - replace with secure method in production
     const tempApiKey = import.meta.env.VITE_GROQ_API_KEY;
@@ -43,13 +45,38 @@ function App() {
   };
 
   const handleSuggestionClick = (suggestion) => {
-    console.log("Card clicked!", suggestion);
-    // TODO: Send this to the Chat column and fetch the detailed answer
+    handleChatRequest(`Tell me more about this suggestion: "${suggestion.preview}"`);
   };
 
   const handleManualRefresh = () => {
     console.log("Manual refresh triggered");
     // TODO: Force the audio hook to flush its chunk early
+  };
+
+  const handleChatRequest = async (query) => {
+    const tempApiKey = import.meta.env.VITE_GROQ_API_KEY;
+    if (!tempApiKey) return;
+
+    const newUserMessage = { role: 'user', content: query };
+    setChatMessages(prev => [...prev, newUserMessage]);
+    setIsChatLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/chat/', {
+        query: query,
+        transcript: transcript.join('\n'),
+        history: chatMessages,
+        apiKey: tempApiKey
+      });
+
+      const aiResponse = { role: 'assistant', content: response.data.answer };
+      setChatMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Chat error:", error);
+      setChatMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I encountered an error fetching the detailed answer." }]);
+    } finally {
+      setIsChatLoading(false);
+    }
   };
 
   return (
@@ -80,12 +107,13 @@ function App() {
           />
         </div>
 
-        {/* Right Column: Chat (Placeholder) */}
-        <div className="col-4 h-100 bg-white p-3 overflow-auto">
-          <h5 className="fw-bold border-bottom pb-3 mb-3">Chat</h5>
-          <div className="text-muted text-center mt-5">
-            <p>Click a suggestion to see details.</p>
-          </div>
+        {/* Right Column: Chat */}
+        <div className="col-4 h-100 p-0 border-start">
+          <Chat
+            messages={chatMessages}
+            onSendMessage={handleChatRequest}
+            isLoading={isChatLoading}
+          />
         </div>
 
       </div>
