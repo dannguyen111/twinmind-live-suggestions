@@ -3,10 +3,31 @@ import Transcript from './components/Transcript';
 import Suggestions from './components/Suggestions';
 import Chat from './components/Chat';
 import WelcomeScreen from './components/WelcomeScreen';
+import SettingsModal from './components/SettingsModal';
 import useAudio from './hooks/useAudio';
 import axios from 'axios';
 
+const DEFAULT_SETTINGS = {
+  suggestionPrompt: `You are TwinMind, an elite AI meeting copilot. 
+Your goal is to listen to the live transcript of a meeting and provide exactly 3 highly contextual, instantly useful suggestions to the user.
+They can be: Question to ask, Talking point, Answer, Fact-check, or Clarification.
+RULES: Provide exactly 3 suggestions. The "preview" must be short (max 12 words). Output ONLY valid JSON in the exact format requested.
+JSON FORMAT: { "suggestions": [ { "type": "fact-check", "preview": "Groq's LPU is faster than standard GPUs." } ] }`,
+  chatPrompt: `You are TwinMind, an elite AI meeting copilot.
+You are helping the user by answering questions based on the live meeting transcript.
+You will be provided with the current transcript, previous chat history, and the user's prompt.
+Provide a clear, detailed, and immediately useful answer. Use markdown for tables and code blocks where appropriate.`,
+  suggestionContextLimit: 15000,
+  chatContextLimit: 15000,
+  chatHistoryLimit: 10
+};
+
 function App() {
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem('twinMindSettings');
+    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+  });
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem('groqApiKey') || '');
   const [transcript, setTranscript] = useState([]);
   const [suggestionBatches, setSuggestionBatches] = useState([]);
@@ -22,6 +43,8 @@ function App() {
     formData.append("audio", audioBlob);
     formData.append("apiKey", apiKey);
     formData.append("context", transcript.join('\n'));
+    formData.append("suggestionPrompt", settings.suggestionPrompt);
+    formData.append("suggestionContextLimit", settings.suggestionContextLimit);
 
     setIsProcessing(true);
 
@@ -122,7 +145,10 @@ function App() {
         query: query,
         transcript: transcript.join('\n'),
         history: chatMessages,
-        apiKey: apiKey
+        apiKey: apiKey,
+        chatPrompt: settings.chatPrompt,
+        chatContextLimit: settings.chatContextLimit,
+        chatHistoryLimit: settings.chatHistoryLimit
       });
 
       const aiResponse = { role: 'assistant', content: response.data.answer };
@@ -135,6 +161,12 @@ function App() {
     }
   };
 
+  const handleSaveSettings = (newSettings) => {
+    setSettings(newSettings);
+    localStorage.setItem('twinMindSettings', JSON.stringify(newSettings));
+    setIsSettingsOpen(false);
+  };
+
   if (!apiKey) {
     return <WelcomeScreen onSaveKey={handleSaveKey} />;
   }
@@ -144,6 +176,9 @@ function App() {
       <nav className="navbar navbar-dark bg-dark px-4 shadow-sm d-flex justify-content-between">
         <span className="navbar-brand mb-0 h1 fw-bold">TwinMind Copilot</span>
         <div className="d-flex gap-3">
+          <button className="btn btn-sm btn-outline-light fw-bold" onClick={() => setIsSettingsOpen(true)}>
+            ⚙️ Settings
+          </button>
           <button className="btn btn-sm btn-success fw-bold shadow-sm" onClick={handleExport}>
             💾 Export Session
           </button>
@@ -152,6 +187,13 @@ function App() {
           </button>
         </div>
       </nav>
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onSave={handleSaveSettings}
+      />
 
       {/* Main 3-Column Layout */}
       <div className="row g-0 flex-grow-1 overflow-hidden">

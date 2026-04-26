@@ -1,6 +1,5 @@
 import requests
 import json
-from .prompts import LIVE_SUGGESTIONS_SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT
 
 def truncate_text(text, max_chars=15000):
     """Keeps the text within token limits by only taking the most recent characters."""
@@ -8,14 +7,14 @@ def truncate_text(text, max_chars=15000):
         return "... [Older context truncated] ...\n" + text[-max_chars:]
     return text
 
-def generate_live_suggestions(api_key, full_transcript_text):
+def generate_live_suggestions(api_key, full_transcript_text, system_prompt, context_limit):
     """
     Calls the Groq LLM to generate 3 contextual suggestions based on the transcript.
     """
     if not full_transcript_text.strip():
         return []
 
-    safe_transcript = truncate_text(full_transcript_text)
+    safe_transcript = truncate_text(full_transcript_text, context_limit)
 
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
@@ -26,7 +25,7 @@ def generate_live_suggestions(api_key, full_transcript_text):
     data = {
         "model": "openai/gpt-oss-120b",
         "messages": [
-            {"role": "system", "content": LIVE_SUGGESTIONS_SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Here is the meeting transcript so far:\n\n{safe_transcript}\n\nProvide the 3 suggestions."}
         ],
         "temperature": 0.3,
@@ -49,11 +48,11 @@ def generate_live_suggestions(api_key, full_transcript_text):
             print(f"Error Details: {response.text}")
         return []
     
-def generate_chat_response(api_key, full_transcript, chat_history, current_query):
+def generate_chat_response(api_key, full_transcript, chat_history, current_query, system_prompt, context_limit, history_limit):
     if not current_query:
         return "Please provide a query."
 
-    safe_transcript = truncate_text(full_transcript)
+    safe_transcript = truncate_text(full_transcript, context_limit)
 
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
@@ -63,11 +62,11 @@ def generate_chat_response(api_key, full_transcript, chat_history, current_query
 
     # Build the message context array
     messages = [
-        {"role": "system", "content": CHAT_SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "system", "content": f"MEETING TRANSCRIPT SO FAR:\n{safe_transcript}"}
     ]
 
-    recent_history = chat_history[-10:] if len(chat_history) > 10 else chat_history
+    recent_history = chat_history[-history_limit:] if len(chat_history) > history_limit else chat_history
     
     # Append the running chat history
     for msg in recent_history:
