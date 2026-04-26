@@ -39,6 +39,8 @@ function App() {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
   const handleAudioChunk = async (audioBlob) => {
     // Hardcoded API key for testing - replace with secure method in production
     if (!apiKey) return;
@@ -54,7 +56,7 @@ function App() {
 
     try {
       // Send the chunk to our new Django endpoint
-      const response = await axios.post('http://localhost:8000/api/process-audio/', formData);
+      const response = await axios.post(`${API_BASE_URL}/api/process-audio/`, formData);
 
       const newText = response.data.transcript;
       const newSuggestions = response.data.suggestions;
@@ -145,7 +147,7 @@ function App() {
     setIsChatLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/chat/', {
+      const response = await axios.post(`${API_BASE_URL}/api/chat/`, {
         query: query,
         transcript: transcript.join('\n'),
         history: chatMessages,

@@ -130,5 +130,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-#     "https://twinmind-live-suggestions.fly.dev"
+    "https://twinmind-live-suggestions-xi.vercel.app"
 ]
