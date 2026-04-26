@@ -53,9 +53,50 @@ function App() {
     handleChatRequest(`Tell me more about this suggestion: "${suggestion.preview}"`);
   };
 
-  const handleManualRefresh = () => {
-    console.log("Manual refresh triggered");
-    // TODO: Force the audio hook to flush its chunk early
+  const handleExport = () => {
+    const timestamp = new Date().toLocaleString();
+    let exportText = `TwinMind Copilot - Session Export\nGenerated: ${timestamp}\n`;
+    exportText += `====================================================\n\n`;
+
+    exportText += `### MEETING TRANSCRIPT ###\n\n`;
+    if (transcript.length === 0) exportText += `(No transcript recorded)\n`;
+    transcript.forEach((text, index) => {
+      exportText += `[Chunk ${index + 1}]\n${text}\n\n`;
+    });
+
+    exportText += `====================================================\n\n`;
+
+    exportText += `### LIVE SUGGESTIONS ###\n\n`;
+    if (suggestionBatches.length === 0) exportText += `(No suggestions generated)\n`;
+
+    [...suggestionBatches].reverse().forEach((batch, index) => {
+      exportText += `[Chunk ${index + 1} Insights]\n`;
+      batch.forEach(sug => {
+        exportText += `- [${sug.type.toUpperCase()}] ${sug.preview}\n`;
+      });
+      exportText += `\n`;
+    });
+
+    exportText += `====================================================\n\n`;
+
+    exportText += `### CHAT HISTORY ###\n\n`;
+    if (chatMessages.length === 0) exportText += `(No chat history)\n`;
+    chatMessages.forEach((msg) => {
+      const roleName = msg.role === 'user' ? 'You' : 'TwinMind';
+      exportText += `[${roleName}]:\n${msg.content}\n\n`;
+    });
+
+    const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `TwinMind_Session_${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleSaveKey = (key) => {
@@ -102,9 +143,14 @@ function App() {
     <div className="container-fluid vh-100 p-0 overflow-hidden bg-light d-flex flex-column">
       <nav className="navbar navbar-dark bg-dark px-4 shadow-sm d-flex justify-content-between">
         <span className="navbar-brand mb-0 h1 fw-bold">TwinMind Copilot</span>
-        <button className="btn btn-sm btn-outline-light" onClick={handleClearKey}>
-          Clear API Key
-        </button>
+        <div className="d-flex gap-3">
+          <button className="btn btn-sm btn-success fw-bold shadow-sm" onClick={handleExport}>
+            💾 Export Session
+          </button>
+          <button className="btn btn-sm btn-outline-light" onClick={handleClearKey}>
+            Clear API Key
+          </button>
+        </div>
       </nav>
 
       {/* Main 3-Column Layout */}
