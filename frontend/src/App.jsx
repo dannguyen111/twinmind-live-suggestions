@@ -13,13 +13,17 @@ Your goal is to listen to the live transcript of a meeting and provide exactly 3
 They can be: Question to ask, Talking point, Answer, Fact-check, or Clarification.
 RULES: Provide exactly 3 suggestions. The "preview" must be short (max 12 words). Output ONLY valid JSON in the exact format requested.
 JSON FORMAT: { "suggestions": [ { "type": "fact-check", "preview": "Groq's LPU is faster than standard GPUs." } ] }`,
+
   chatPrompt: `You are TwinMind, an elite AI meeting copilot.
-You are helping the user by answering questions based on the live meeting transcript.
-You will be provided with the current transcript, previous chat history, and the user's prompt.
-Provide a clear, detailed, and immediately useful answer. Use markdown for tables and code blocks where appropriate.`,
-  suggestionContextLimit: 15000,
-  chatContextLimit: 15000,
-  chatHistoryLimit: 10
+You answer questions based on the live meeting transcript and previous chat history.
+
+RESPONSE RULES:
+1. IF the user's prompt starts with "Tell me more about this suggestion:" -> Provide a comprehensive, detailed deep-dive. Use markdown, tables, and bullet points to break down the context, importance, and actionable next steps.
+2. IF the user types any other follow-up question -> Keep your answer more CONCISE (200 words max). At the very end, ask a relevant follow-up question to see if they want to go deeper into the specifics.`,
+
+  suggestionContextLimit: 40000,
+  chatContextLimit: 40000,
+  chatHistoryLimit: 50
 };
 
 function App() {
