@@ -25,8 +25,11 @@ SECRET_KEY = "django-insecure-=d@ypki3v==%634tgemo!mjh(x$^nil0n0scb@6i^9@$k^=--(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'twinmind-live-suggestions.fly.dev',
+    'localhost',
+    '127.0.0.1'
+]
 
 # Application definition
 
@@ -127,4 +130,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+#     "https://twinmind-live-suggestions.fly.dev"
 ]
