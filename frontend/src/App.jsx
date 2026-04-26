@@ -12,6 +12,7 @@ function App() {
   const [suggestionBatches, setSuggestionBatches] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleAudioChunk = async (audioBlob) => {
     // Hardcoded API key for testing - replace with secure method in production
@@ -21,6 +22,8 @@ function App() {
     formData.append("audio", audioBlob);
     formData.append("apiKey", apiKey);
     formData.append("context", transcript.join('\n'));
+
+    setIsProcessing(true);
 
     try {
       // Send the chunk to our new Django endpoint
@@ -39,6 +42,8 @@ function App() {
 
     } catch (error) {
       console.error("Error processing audio chunk:", error);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -121,6 +126,7 @@ function App() {
             batches={suggestionBatches}
             onSuggestionClick={handleSuggestionClick}
             onRefresh={forceRefresh}
+            isRefreshing={isProcessing}
           />
         </div>
 
