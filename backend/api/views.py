@@ -9,22 +9,16 @@ def process_audio(request):
     audio_file = request.FILES.get('audio')
     api_key = request.data.get('apiKey') or os.environ.get('GROQ_API_KEY')
     previous_context = request.data.get('context', '')
+    prompt = request.data.get('suggestionPrompt')
+    context_limit = int(request.data.get('suggestionContextLimit', 15000))
 
     if not audio_file or not api_key:
         return Response({"error": "Audio file and API key are required."}, status=400)
 
     url = "https://api.groq.com/openai/v1/audio/transcriptions"
-    headers = {
-        "Authorization": f"Bearer {api_key}"
-    }
-    
-    files = {
-        "file": ("chunk.webm", audio_file.read())
-    }
-    data = {
-        "model": "whisper-large-v3",
-        "response_format": "json"
-    }
+    headers = {"Authorization": f"Bearer {api_key}"}
+    files = {"file": ("chunk.webm", audio_file.read())}
+    data = {"model": "whisper-large-v3", "response_format": "json"}
 
     try:
         response = requests.post(url, headers=headers, files=files, data=data)
@@ -35,7 +29,7 @@ def process_audio(request):
         
         if transcript_chunk:
             full_context = f"{previous_context}\n{transcript_chunk}".strip()
-            suggestions = generate_live_suggestions(api_key, full_context)
+            suggestions = generate_live_suggestions(api_key, full_context, prompt, context_limit)
 
         return Response({
             "transcript": transcript_chunk,
@@ -54,10 +48,13 @@ def chat_message(request):
     transcript = request.data.get('transcript', '')
     history = request.data.get('history', [])
     api_key = request.data.get('apiKey') or os.environ.get('GROQ_API_KEY')
+    prompt = request.data.get('chatPrompt')
+    context_limit = int(request.data.get('chatContextLimit', 15000))
+    history_limit = int(request.data.get('chatHistoryLimit', 10))
 
     if not query or not api_key:
         return Response({"error": "Query and API key are required."}, status=400)
 
-    answer = generate_chat_response(api_key, transcript, history, query)
+    answer = generate_chat_response(api_key, transcript, history, query, prompt, context_limit, history_limit)
     
     return Response({"answer": answer})
