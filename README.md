@@ -30,7 +30,7 @@ The easiest way to run the full stack locally is using the included `docker-comp
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/yourusername/twinmind-live-suggestions.git](https://github.com/yourusername/twinmind-live-suggestions.git)
+   git clone [[https://github.com/yourusername/twinmind-live-suggestions.git](https://github.com/yourusername/twinmind-live-suggestions.git)](https://github.com/dannguyen111/twinmind-live-suggestions.git)
    cd twinmind-live-suggestions
    ```
 2. Build and start the containers:
