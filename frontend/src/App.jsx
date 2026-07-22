@@ -6,6 +6,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import SettingsModal from './components/SettingsModal';
 import useAudio from './hooks/useAudio';
 import axios from 'axios';
+import './App.css';
 
 const DEFAULT_SETTINGS = {
   suggestionPrompt: `You are TwinMind, an elite AI meeting copilot. 
@@ -190,21 +191,24 @@ function App() {
   }
 
   return (
-    <div className="container-fluid vh-100 p-0 overflow-hidden bg-light d-flex flex-column">
-      <nav className="navbar navbar-dark bg-dark px-4 shadow-sm d-flex justify-content-between">
-        <span className="navbar-brand mb-0 h1 fw-bold">TwinMind Copilot</span>
-        <div className="d-flex gap-3">
-          <button className="btn btn-sm btn-outline-light fw-bold" onClick={() => setIsSettingsOpen(true)}>
+    <div className="tm-app-shell">
+      <header className="tm-header">
+        <span className="tm-header-title">
+          <span className="tm-logo-dot">TM</span>
+          TwinMind Copilot
+        </span>
+        <div className="tm-header-actions">
+          <button className="tm-btn-pill tm-btn-pill-light" onClick={() => setIsSettingsOpen(true)}>
             ⚙️ Settings
           </button>
-          <button className="btn btn-sm btn-success fw-bold shadow-sm" onClick={handleExport}>
+          <button className="tm-btn-pill tm-btn-pill-accent" onClick={handleExport}>
             💾 Export Session
           </button>
-          <button className="btn btn-sm btn-outline-light" onClick={handleClearKey}>
+          <button className="tm-btn-pill tm-btn-pill-light" onClick={handleClearKey}>
             Clear API Key
           </button>
         </div>
-      </nav>
+      </header>
 
       <SettingsModal
         isOpen={isSettingsOpen}
@@ -214,10 +218,10 @@ function App() {
       />
 
       {/* Main 3-Column Layout */}
-      <div className="row g-0 flex-grow-1 overflow-hidden">
+      <div className="tm-panel-wrap">
 
         {/* Left Column: Mic & Transcript */}
-        <div className="col-4 h-100">
+        <div className="tm-panel">
           <Transcript
             transcript={transcript}
             isRecording={isRecording}
@@ -227,7 +231,7 @@ function App() {
         </div>
 
         {/* Middle Column: Live Suggestions */}
-        <div className="col-4 h-100 p-0 border-start">
+        <div className="tm-panel">
           <Suggestions
             batches={suggestionBatches}
             onSuggestionClick={handleSuggestionClick}
@@ -237,7 +241,7 @@ function App() {
         </div>
 
         {/* Right Column: Chat */}
-        <div className="col-4 h-100 p-0 border-start">
+        <div className="tm-panel">
           <Chat
             messages={chatMessages}
             onSendMessage={handleChatRequest}

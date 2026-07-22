@@ -8,33 +8,33 @@ export default function Transcript({ transcript, isRecording, startRecording, st
     }, [transcript]);
 
     return (
-        <div className="d-flex flex-column h-100 bg-white">
-            <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
-                <h5 className="mb-0 fw-bold">Meeting Transcript</h5>
+        <>
+            <div className="tm-panel-header">
+                <h5>Meeting Transcript</h5>
                 <button
-                    className={`btn fw-bold ${isRecording ? 'btn-danger' : 'btn-primary'}`}
+                    className={`tm-btn-pill ${isRecording ? 'tm-btn-pill-danger' : 'tm-btn-pill-dark'}`}
                     onClick={isRecording ? stopRecording : startRecording}
                 >
                     {isRecording ? '⏹ Stop Mic' : '⏺ Start Mic'}
                 </button>
             </div>
 
-            <div className="flex-grow-1 p-3 overflow-auto">
+            <div className="tm-panel-body">
                 {transcript.length === 0 ? (
-                    <div className="text-muted text-center mt-5">
+                    <div className="tm-empty-state">
                         <p>Your transcribed text will appear here.</p>
                         <small>Click "Start Mic" to begin.</small>
                     </div>
                 ) : (
                     transcript.map((text, index) => (
                         <div key={index} className="mb-3">
-                            <span className="badge bg-secondary mb-1">Chunk {index + 1}</span>
+                            <span className="tm-chip mb-1 d-inline-block">Chunk {index + 1}</span>
                             <p className="mb-0 lh-lg">{text}</p>
                         </div>
                     ))
                 )}
                 <div ref={endOfTranscriptRef} />
             </div>
-        </div>
+        </>
     );
 }
