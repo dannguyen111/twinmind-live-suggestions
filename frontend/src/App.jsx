@@ -45,11 +45,34 @@ function App() {
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem('groqApiKey') || '');
-  const [transcript, setTranscript] = useState([]);
-  const [suggestionBatches, setSuggestionBatches] = useState([]);
-  const [chatMessages, setChatMessages] = useState([]);
+  const [transcript, setTranscript] = useState(() => {
+    const saved = sessionStorage.getItem('twinMindTranscript');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [suggestionBatches, setSuggestionBatches] = useState(() => {
+    const saved = sessionStorage.getItem('twinMindSuggestionBatches');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [chatMessages, setChatMessages] = useState(() => {
+    const saved = sessionStorage.getItem('twinMindChatMessages');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Session-only persistence: survives link navigation, back/forward, and
+  // reopening a closed tab (Ctrl+Shift+T), but not a genuinely new tab.
+  useEffect(() => {
+    sessionStorage.setItem('twinMindTranscript', JSON.stringify(transcript));
+  }, [transcript]);
+
+  useEffect(() => {
+    sessionStorage.setItem('twinMindSuggestionBatches', JSON.stringify(suggestionBatches));
+  }, [suggestionBatches]);
+
+  useEffect(() => {
+    sessionStorage.setItem('twinMindChatMessages', JSON.stringify(chatMessages));
+  }, [chatMessages]);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -148,7 +171,15 @@ function App() {
   const handleClearKey = () => {
     localStorage.removeItem('groqApiKey');
     setApiKey('');
-    // Potentially reset app state to clear the screen on logout
+
+    // Clearing the key is an explicit end-of-session action, so wipe the
+    // session data too (unlike a stray tab close, which should keep it).
+    sessionStorage.removeItem('twinMindTranscript');
+    sessionStorage.removeItem('twinMindSuggestionBatches');
+    sessionStorage.removeItem('twinMindChatMessages');
+    setTranscript([]);
+    setSuggestionBatches([]);
+    setChatMessages([]);
   };
 
   const handleChatRequest = async (query) => {
