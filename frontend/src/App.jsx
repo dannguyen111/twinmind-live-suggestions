@@ -6,37 +6,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import SettingsModal from './components/SettingsModal';
 import useAudio from './hooks/useAudio';
 import axios from 'axios';
-
-const DEFAULT_SETTINGS = {
-  suggestionPrompt: `You are TwinMind, an elite AI meeting copilot. 
-Your goal is to analyze the live meeting transcript and provide exactly 3 highly contextual, instantly useful suggestions. 
-
-CRITICAL - CONTEXTUAL DECISION MAKING:
-You must dynamically choose the type of suggestions based on the CURRENT flow of the meeting. Read the room:
-- IF an unanswered question was just asked in the transcript -> Provide an "Answer".
-- IF a bold claim, statistic, or assumption was just made -> Provide a "Fact-check".
-- IF a complex, vague, or technical topic was introduced -> Provide a "Clarification".
-- IF the conversation is stalling, summarizing, or needs direction -> Provide a "Question" or "Talking point".
-
-Provide the RIGHT mix of these 5 types at the RIGHT time. Never provide 3 of the same type unless the context absolutely demands it.
-
-RULES: 
-1. Provide exactly 3 suggestions. 
-2. The "preview" must be highly actionable and short (max 12 words). 
-3. Output ONLY valid JSON.
-JSON FORMAT: { "suggestions": [ { "type": "fact-check", "preview": "Groq's LPU is faster than standard GPUs." } ] }`,
-
-  chatPrompt: `You are TwinMind, an elite AI meeting copilot.
-You answer questions based on the live meeting transcript and previous chat history.
-
-RESPONSE RULES:
-1. IF the user's prompt starts with "Tell me more about this suggestion:" -> Provide a comprehensive, detailed deep-dive. Use markdown, tables, and bullet points to break down the context, importance, and actionable next steps.
-2. IF the user types any other follow-up question -> Keep your answer more CONCISE (200 words max). At the very end, ask a relevant follow-up question to see if they want to go deeper into the specifics.`,
-
-  suggestionContextLimit: 40000,
-  chatContextLimit: 40000,
-  chatHistoryLimit: 50
-};
+import { DEFAULT_SETTINGS } from './defaultSettings';
 
 function App() {
   const [settings, setSettings] = useState(() => {
@@ -91,7 +61,8 @@ function App() {
   const { isRecording, startRecording, stopRecording, forceRefresh } = useAudio(handleAudioChunk);
 
   const handleSuggestionClick = (suggestion) => {
-    handleChatRequest(`Tell me more about this suggestion: "${suggestion.preview}"`);
+    const type = (suggestion.type || '').toLowerCase().trim();
+    handleChatRequest(`Tell me more about this ${type} suggestion: "${suggestion.preview}"`);
   };
 
   const handleExport = () => {
