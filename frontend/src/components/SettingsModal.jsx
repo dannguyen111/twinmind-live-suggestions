@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { DEFAULT_SETTINGS } from '../defaultSettings';
 
 export default function SettingsModal({ isOpen, onClose, settings, onSave }) {
     const [formData, setFormData] = useState(settings);
+
+    // Settings load once at app startup; re-sync whenever the modal is reopened
+    // so a Reset (or an edit made elsewhere) isn't clobbered by stale state.
+    useEffect(() => {
+        if (isOpen) setFormData(settings);
+    }, [isOpen, settings]);
 
     if (!isOpen) return null;
 
@@ -9,6 +16,12 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }) {
         const { name, value } = e.target;
         const parsedValue = e.target.type === 'number' ? Number(value) : value;
         setFormData(prev => ({ ...prev, [name]: parsedValue }));
+    };
+
+    const handleReset = () => {
+        if (window.confirm('Reset both system prompts and context limits back to the app defaults? This discards your custom settings.')) {
+            setFormData(DEFAULT_SETTINGS);
+        }
     };
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -103,6 +116,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }) {
                     </div>
 
                     <div className="modal-footer">
+                        <button type="button" className="btn btn-outline-danger me-auto" onClick={handleReset}>Reset to Defaults</button>
                         <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
                         <button type="submit" form="settingsForm" className="btn btn-primary fw-bold">Save Changes</button>
                     </div>
