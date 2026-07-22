@@ -8,33 +8,46 @@ export default function Transcript({ transcript, isRecording, startRecording, st
     }, [transcript]);
 
     return (
-        <div className="d-flex flex-column h-100 bg-white">
-            <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
-                <h5 className="mb-0 fw-bold">Meeting Transcript</h5>
+        <>
+            <div className="tm-panel-header">
+                <h5>Meeting Transcript</h5>
                 <button
-                    className={`btn fw-bold ${isRecording ? 'btn-danger' : 'btn-primary'}`}
+                    className={`tm-icon-btn ${isRecording ? 'tm-icon-btn-danger tm-mic-recording' : 'tm-icon-btn-dark'}`}
                     onClick={isRecording ? stopRecording : startRecording}
+                    aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+                    data-tooltip={isRecording ? 'Stop recording' : 'Start recording'}
                 >
-                    {isRecording ? '⏹ Stop Mic' : '⏺ Start Mic'}
+                    {isRecording ? (
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                        </svg>
+                    ) : (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    )}
                 </button>
             </div>
 
-            <div className="flex-grow-1 p-3 overflow-auto">
+            <div className="tm-panel-body">
                 {transcript.length === 0 ? (
-                    <div className="text-muted text-center mt-5">
+                    <div className="tm-empty-state">
                         <p>Your transcribed text will appear here.</p>
                         <small>Click "Start Mic" to begin.</small>
                     </div>
                 ) : (
                     transcript.map((text, index) => (
                         <div key={index} className="mb-3">
-                            <span className="badge bg-secondary mb-1">Chunk {index + 1}</span>
+                            <span className="tm-chip mb-1 d-inline-block">Chunk {index + 1}</span>
                             <p className="mb-0 lh-lg">{text}</p>
                         </div>
                     ))
                 )}
                 <div ref={endOfTranscriptRef} />
             </div>
-        </div>
+        </>
     );
 }

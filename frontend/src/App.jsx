@@ -7,6 +7,7 @@ import SettingsModal from './components/SettingsModal';
 import useAudio from './hooks/useAudio';
 import axios from 'axios';
 import { DEFAULT_SETTINGS } from './defaultSettings';
+import './App.css';
 
 function App() {
   const [settings, setSettings] = useState(() => {
@@ -192,21 +193,50 @@ function App() {
   }
 
   return (
-    <div className="container-fluid vh-100 p-0 overflow-hidden bg-light d-flex flex-column">
-      <nav className="navbar navbar-dark bg-dark px-4 shadow-sm d-flex justify-content-between">
-        <span className="navbar-brand mb-0 h1 fw-bold">TwinMind Copilot</span>
-        <div className="d-flex gap-3">
-          <button className="btn btn-sm btn-outline-light fw-bold" onClick={() => setIsSettingsOpen(true)}>
-            ⚙️ Settings
+    <div className="tm-app-shell">
+      <header className="tm-header">
+        <span className="tm-header-title">
+          <span className="tm-logo-dot">TM</span>
+          TwinMind Copilot
+        </span>
+        <div className="tm-header-actions">
+          <button
+            className="tm-icon-btn tm-icon-btn-light"
+            onClick={() => setIsSettingsOpen(true)}
+            aria-label="Settings"
+            data-tooltip="Settings"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
           </button>
-          <button className="btn btn-sm btn-success fw-bold shadow-sm" onClick={handleExport}>
-            💾 Export Session
+          <button
+            className="tm-icon-btn tm-icon-btn-accent"
+            onClick={handleExport}
+            aria-label="Export session"
+            data-tooltip="Export session"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
           </button>
-          <button className="btn btn-sm btn-outline-light" onClick={handleClearKey}>
-            Clear API Key
+          <button
+            className="tm-icon-btn tm-icon-btn-light"
+            onClick={handleClearKey}
+            aria-label="Clear API key"
+            data-tooltip="Clear API key"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
           </button>
         </div>
-      </nav>
+      </header>
 
       <SettingsModal
         isOpen={isSettingsOpen}
@@ -216,10 +246,10 @@ function App() {
       />
 
       {/* Main 3-Column Layout */}
-      <div className="row g-0 flex-grow-1 overflow-hidden">
+      <div className="tm-panel-wrap">
 
         {/* Left Column: Mic & Transcript */}
-        <div className="col-4 h-100">
+        <div className="tm-panel">
           <Transcript
             transcript={transcript}
             isRecording={isRecording}
@@ -229,7 +259,7 @@ function App() {
         </div>
 
         {/* Middle Column: Live Suggestions */}
-        <div className="col-4 h-100 p-0 border-start">
+        <div className="tm-panel">
           <Suggestions
             batches={suggestionBatches}
             onSuggestionClick={handleSuggestionClick}
@@ -239,7 +269,7 @@ function App() {
         </div>
 
         {/* Right Column: Chat */}
-        <div className="col-4 h-100 p-0 border-start">
+        <div className="tm-panel">
           <Chat
             messages={chatMessages}
             onSendMessage={handleChatRequest}
