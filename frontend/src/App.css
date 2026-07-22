@@ -116,6 +116,119 @@ body {
 }
 .tm-btn-pill-danger:hover:not(:disabled) { background: #fbd6d6; }
 
+/* Icon buttons + hover tooltips */
+.tm-icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background-color .15s ease, transform .1s ease, box-shadow .2s ease;
+}
+
+.tm-icon-btn svg {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.tm-icon-btn:active:not(:disabled) { transform: scale(0.94); }
+
+.tm-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tm-icon-btn-light {
+  background: #f3f1fb;
+  color: var(--tm-text);
+}
+.tm-icon-btn-light:hover:not(:disabled) { background: #e9e5f8; }
+
+.tm-icon-btn-dark {
+  background: var(--tm-dark);
+  color: #fff;
+}
+.tm-icon-btn-dark:hover:not(:disabled) { background: var(--tm-dark-hover); }
+
+.tm-icon-btn-accent {
+  background: var(--tm-accent);
+  color: #fff;
+}
+.tm-icon-btn-accent:hover:not(:disabled) { background: var(--tm-accent-dark); }
+
+.tm-icon-btn-danger {
+  background: #fde8e8;
+  color: #d64545;
+}
+.tm-icon-btn-danger:hover:not(:disabled) { background: #fbd6d6; }
+
+.tm-icon-btn-danger.tm-mic-recording {
+  animation: tm-mic-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes tm-mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(214, 69, 69, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(214, 69, 69, 0); }
+}
+
+.tm-spin {
+  animation: tm-spin-rotate 0.9s linear infinite;
+}
+
+@keyframes tm-spin-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* CSS-only hover tooltip: pair with aria-label + data-tooltip on the trigger */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--tm-dark);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 30;
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Panel headers clip overflow for rounded corners, so right-align instead
+   of centering to keep the tooltip from being cut off at the panel edge. */
+.tm-panel-header [data-tooltip]::after {
+  left: auto;
+  right: 0;
+  transform: translateY(4px);
+}
+
+.tm-panel-header [data-tooltip]:hover::after,
+.tm-panel-header [data-tooltip]:focus-visible::after {
+  transform: translateY(0);
+}
+
 /* Panels */
 .tm-panel-wrap {
   flex: 1;

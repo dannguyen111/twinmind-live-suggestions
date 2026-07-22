@@ -17,19 +17,20 @@ export default function Suggestions({ batches, onSuggestionClick, onRefresh, isR
             <div className="tm-panel-header">
                 <h5>Live Suggestions</h5>
                 <button
-                    className="tm-btn-pill tm-btn-pill-light"
+                    className="tm-icon-btn tm-icon-btn-light"
                     onClick={onRefresh}
                     disabled={isRefreshing}
-                    title="Manually force a new batch of suggestions"
+                    aria-label={isRefreshing ? 'Refreshing suggestions' : 'Refresh suggestions'}
+                    data-tooltip={isRefreshing ? 'Refreshing…' : 'Refresh suggestions'}
                 >
-                    {isRefreshing ? (
-                        <>
-                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Refreshing...
-                        </>
-                    ) : (
-                        <>🔄 Refresh</>
-                    )}
+                    <svg
+                        className={isRefreshing ? 'tm-spin' : ''}
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
                 </button>
             </div>
 

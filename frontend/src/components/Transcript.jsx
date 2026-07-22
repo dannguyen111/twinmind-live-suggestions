@@ -12,10 +12,23 @@ export default function Transcript({ transcript, isRecording, startRecording, st
             <div className="tm-panel-header">
                 <h5>Meeting Transcript</h5>
                 <button
-                    className={`tm-btn-pill ${isRecording ? 'tm-btn-pill-danger' : 'tm-btn-pill-dark'}`}
+                    className={`tm-icon-btn ${isRecording ? 'tm-icon-btn-danger tm-mic-recording' : 'tm-icon-btn-dark'}`}
                     onClick={isRecording ? stopRecording : startRecording}
+                    aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+                    data-tooltip={isRecording ? 'Stop recording' : 'Start recording'}
                 >
-                    {isRecording ? '⏹ Stop Mic' : '⏺ Start Mic'}
+                    {isRecording ? (
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                        </svg>
+                    ) : (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    )}
                 </button>
             </div>
 
